@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -27,7 +28,7 @@ class AuthorController extends AbstractController
         $limit = $request->query->getInt('limit', 10);
 
         $authors = $this->entityManager->getRepository(Author::class)->findPaginatedAuthors($page, $limit);
-        return $this->json($authors, 200, [], ['groups' => 'author:read']);
+        return $this->json($authors, Response::HTTP_OK, [], ['groups' => 'author:read']);
     }
 
     #[Route('/create', name: 'create', methods: ['POST'])]
@@ -46,12 +47,12 @@ class AuthorController extends AbstractController
                 $errorMessages[$error->getPropertyPath()] = $error->getMessage();
             }
 
-            return $this->json($errorMessages, 400);
+            return $this->json($errorMessages, Response::HTTP_BAD_REQUEST);
         }
 
         $this->entityManager->persist($author);
         $this->entityManager->flush();
 
-        return $this->json($author, 200, [], ['groups' => 'author:read']);
+        return $this->json($author, Response::HTTP_OK, [], ['groups' => 'author:read']);
     }
 }

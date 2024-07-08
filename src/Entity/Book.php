@@ -9,6 +9,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 #[ORM\Entity(repositoryClass: BookRepository::class)]
 class Book
@@ -30,7 +31,15 @@ class Book
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['book:read', 'book:write'])]
+    #[Assert\File(
+        maxSize: '2048k',
+        extensions: ['jpg', 'png'],
+        extensionsMessage: 'Please upload a jpg or png',
+    )]
     private ?string $image = null;
+
+    /** @var UploadedFile|null */
+    private $imageFile;
 
     /**
      * @var Collection<int, Author>
@@ -86,6 +95,19 @@ class Book
         $this->image = $image;
 
         return $this;
+    }
+
+    public function getImageFile(): ?UploadedFile
+    {
+        return $this->imageFile;
+    }
+
+    public function setImageFile(?UploadedFile $imageFile): void
+    {
+        $this->imageFile = $imageFile;
+        if ($imageFile) {
+            $this->image = uniqid().'.'.$imageFile->guessExtension();
+        }
     }
 
     /**
