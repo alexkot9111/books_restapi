@@ -5,10 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="45ff05eb-0f61-4566-8309-22bcd10142c2" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/composer.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/composer.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/AuthorController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/AuthorController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Repository/AuthorRepository.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Repository/AuthorRepository.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,6 +26,12 @@
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
+  </component>
+  <component name="PhpDebugGeneral" listening_started="true" />
+  <component name="PhpServers">
+    <servers>
+      <server host="host.docker.internal" id="77d139ba-ceae-4b8f-b7c9-a48d04b67f69" name="Docker" port="32000" use_path_mappings="true" />
+    </servers>
   </component>
   <component name="PhpWorkspaceProjectConfiguration" interpreter_name="C:\php\PHP-8.3\php.exe">
     <include_path>
@@ -102,12 +108,13 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "master",
     "ignore.virus.scanning.warn.message": "true",
-    "last_opened_file_path": "D:/develop/time_tracker",
+    "last_opened_file_path": "D:/develop/books_restapi",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "settings.php.debug.servers",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -127,11 +134,23 @@
       <option name="presentableId" value="Default" />
       <updated>1720338114280</updated>
       <workItem from="1720338115348" duration="9432000" />
-      <workItem from="1720420411312" duration="3958000" />
+      <workItem from="1720420411312" duration="7505000" />
+      <workItem from="1720427962891" duration="453000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="php">
+          <url>file://$PROJECT_DIR$/src/Controller/AuthorController.php</url>
+          <line>28</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

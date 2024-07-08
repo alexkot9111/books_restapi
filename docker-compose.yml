@@ -27,6 +27,8 @@ services:
         volumes:
             - '.:/application'
             - './docker/php-fpm/php-ini-overrides.ini:/etc/php/8.3/fpm/conf.d/99-overrides.ini'
+        environment:
+            PHP_IDE_CONFIG: "serverName=Docker"
 
 volumes:
 ###> doctrine/doctrine-bundle ###

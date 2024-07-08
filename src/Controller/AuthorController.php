@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,5 +18,40 @@ class AuthorController extends AbstractController
     public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
+    }
+
+    #[Route('/', name: 'list', methods: ['GET'])]
+    public function list(Request $request): JsonResponse
+    {
+        $page = $request->query->getInt('page', 1);
+        $limit = $request->query->getInt('limit', 10);
+
+        $authors = $this->entityManager->getRepository(Author::class)->findPaginatedAuthors($page, $limit);
+        return $this->json($authors, 200, [], ['groups' => 'author:read']);
+    }
+
+    #[Route('/create', name: 'create', methods: ['POST'])]
+    public function create(Request $request,  ValidatorInterface $validator): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $author = new Author();
+        $author->setLastName($data['last_name'] ?? '');
+        $author->setFirstName($data['first_name'] ?? '');
+        $author->setSurName($data['sur_name'] ?? '');
+
+        $errors = $validator->validate($author);
+        if (count($errors) > 0) {
+            $errorMessages = [];
+            foreach ($errors as $error) {
+                $errorMessages[$error->getPropertyPath()] = $error->getMessage();
+            }
+
+            return $this->json($errorMessages, 400);
+        }
+
+        $this->entityManager->persist($author);
+        $this->entityManager->flush();
+
+        return $this->json($author, 200, [], ['groups' => 'author:read']);
     }
 }
