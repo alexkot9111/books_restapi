@@ -2,7 +2,6 @@
 
 namespace App\Repository;
 
-use App\Entity\Author;
 use App\Entity\Book;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
@@ -15,7 +14,7 @@ class BookRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Author::class);
+        parent::__construct($registry, Book::class);
     }
 
     public function findPaginatedBooks(int $page = 1, int $limit = 10, array $filters = null): Paginator
@@ -29,12 +28,10 @@ class BookRepository extends ServiceEntityRepository
                         $qb->andWhere('b.title LIKE :title');
                         $qb->setParameter('title', '%' . $value . '%');
                         break;
-                    case 'authorName':
+                    case 'authorLastName':
                         $qb->leftJoin('b.authors', 'a');
-                        $qb->andWhere('a.first_name LIKE :authorName');
-                        $qb->orWhere('a.last_name LIKE :authorName');
-                        $qb->orWhere('a.sur_name LIKE :authorName');
-                        $qb->setParameter('authorName', '%' . $value . '%');
+                        $qb->andWhere('a.last_name LIKE :authorLastName');
+                        $qb->setParameter('authorLastName', '%' . $value . '%');
                         break;
                 }
             }

@@ -31,14 +31,14 @@ class Book
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['book:read', 'book:write'])]
+    private ?string $image = null;
+
+    /** @var UploadedFile|null */
     #[Assert\File(
         maxSize: '2048k',
         extensions: ['jpg', 'png'],
         extensionsMessage: 'Please upload a jpg or png',
     )]
-    private ?string $image = null;
-
-    /** @var UploadedFile|null */
     private $imageFile;
 
     /**
@@ -49,6 +49,7 @@ class Book
     private Collection $authors;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    #[Groups(['book:read', 'book:write'])]
     private ?\DateTimeInterface $publication_date = null;
 
     public function __construct()

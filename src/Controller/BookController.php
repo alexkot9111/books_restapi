@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,61 +25,71 @@ class BookController extends AbstractController
     }
 
     #[Route('/', name: 'list', methods: ['GET'])]
-    public function list(Request $request): JsonResponse
+    public function list(Request $request, SerializerInterface $serializer): JsonResponse
     {
         $page = $request->query->getInt('page', 1);
         $limit = $request->query->getInt('limit', 10);
 
         $books = $this->entityManager->getRepository(Book::class)->findPaginatedBooks($page, $limit);
-        return $this->json($books, Response::HTTP_OK, [], ['groups' => 'book:read']);
+        $jsonBooks = $serializer->serialize($books, 'json',  ['groups' => 'book:read']);
+        return new JsonResponse($jsonBooks, Response::HTTP_OK, [], true);
     }
 
     #[Route('/search', name: 'search', methods: ['POST'])]
-    public function search(Request $request): JsonResponse
+    public function search(Request $request, SerializerInterface $serializer): JsonResponse
     {
         $page = $request->query->getInt('page', 1);
         $limit = $request->query->getInt('limit', 10);
         $filters = json_decode($request->getContent(), true);
 
         $books = $this->entityManager->getRepository(Book::class)->findPaginatedBooks($page, $limit, $filters);
-        return $this->json($books, Response::HTTP_OK, [], ['groups' => 'book:read']);
+        $jsonBooks = $serializer->serialize($books, 'json',  ['groups' => 'book:read']);
+        return new JsonResponse($jsonBooks, Response::HTTP_OK, [], true);
     }
 
     #[Route('/create', name: 'create', methods: ['POST'])]
-    public function create(Request $request, ValidatorInterface $validator): JsonResponse
+    public function create(Request $request, ValidatorInterface $validator, SerializerInterface $serializer): JsonResponse
     {
         $book = new Book();
-        return $this->saveBook($book, $request, $validator, true);
+        return $this->saveBook($book, $request, $validator, $serializer, true);
     }
 
     #[Route('/{id}', name: 'update', methods: ['PUT'])]
-    public function update(int $id, Request $request, ValidatorInterface $validator): JsonResponse
+    public function update(int $id, Request $request, ValidatorInterface $validator, SerializerInterface $serializer): JsonResponse
     {
         $book = $this->entityManager->getRepository(Book::class)->find($id);
         if (!$book) {
             return $this->json(['message' => 'Book not found'], 404);
         }
 
-        return $this->saveBook($book, $request, $validator, false);
+        return $this->saveBook($book, $request, $validator, $serializer, false);
     }
 
-    private function saveBook(Book $book, Request $request, ValidatorInterface $validator, bool $isNew): JsonResponse
+    private function saveBook(Book $book, Request $request, ValidatorInterface $validator, SerializerInterface $serializer, bool $isNew ): JsonResponse
     {
         // Set Data
         $data = json_decode($request->getContent(), true);
         $book->setTitle($data['title'] ?? '');
         $book->setDescription($data['description'] ?? '');
-        $book->setPublicationDate(isset($data['publicationDate']) ? new \DateTime($data['publicationDate']) : null);
+        $book->setPublicationDate(isset($data['publication_date']) ? new \DateTime($data['publication_date']) : null);
 
         // Image Download
         $imageFile = $request->files->get('image');
         if ($imageFile) {
             try {
                 $book->setImageFile($imageFile);
-                $imageFile->move(
-                    $this->getParameter('images_directory'),
-                    $book->getImage()
-                );
+                $destination = $this->getParameter('images_directory') . '/' . $book->getImage();
+
+                // Copy the file
+                if (!copy($imageFile->getPathname(), $destination)) {
+                    throw new FileException('Failed to copy the file');
+                }
+
+                // Delete the temporary file if not in test environment
+                if ($this->getParameter('kernel.environment') !== 'test') {
+                    unlink($imageFile->getPathname());
+                }
+
             } catch (FileException $e) {
                 return new JsonResponse(['error' => 'File could not be uploaded.'], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
             }
@@ -110,11 +121,12 @@ class BookController extends AbstractController
         $this->entityManager->flush();
 
         // Return Data
-        return $this->json($book, JsonResponse::HTTP_OK, [], ['groups' => 'book:read']);
+        $jsonBook = $serializer->serialize($book, 'json',  ['groups' => 'book:read']);
+        return new JsonResponse($jsonBook, Response::HTTP_OK, [], true);
     }
 
     #[Route('/{id}', name: 'show', methods: ['GET'])]
-    public function show(int $id): JsonResponse
+    public function show(int $id, SerializerInterface $serializer): JsonResponse
     {
         $book = $this->entityManager->getRepository(Book::class)->find($id);
 
@@ -122,6 +134,7 @@ class BookController extends AbstractController
             return new JsonResponse(['error' => 'Book not found'], Response::HTTP_NOT_FOUND);
         }
 
-        return $this->json($book, Response::HTTP_OK, [], ['groups' => 'book:read']);
+        $jsonBook = $serializer->serialize($book, 'json',  ['groups' => 'book:read']);
+        return new JsonResponse($jsonBook, Response::HTTP_OK, [], true);
     }
 }
